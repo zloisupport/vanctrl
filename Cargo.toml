@@ -10,6 +10,7 @@ build = "build.rs"
 [dependencies]
 slint = {version = "1.10.0",features = ["std", "backend-winit"] }
 rust-ini = "0.21"
-
+winapi = {version = "0.3", features = ["wincon","fileapi","shellapi", "winuser", "winnls", "tlhelp32", "processthreadsapi", "handleapi", "synchapi", "winnt"] }
+winreg = "0.52"
 [build-dependencies]
 slint-build = "1.10"

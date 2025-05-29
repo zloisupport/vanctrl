@@ -2,12 +2,12 @@
     import { Switch,Button } from "std-widgets.slint";
 
     export component AppWindow inherits Window {
- 
-    in-out property  <bool> active: false;
-
+    in-out property <bool> active: false;
+    in-out property <string> autostart: "Add to Autostart";
     callback add_to_autostart();
     callback change_active();
     callback save_config();
+    callback text_to_autostart();
     icon: @image-url("../assets/app_icon.png");
     title: "VG out";
     width: 300px;
@@ -28,7 +28,7 @@
                     image-fit: ImageFit.fill;
                     image-rendering: ImageRendering.smooth;
                 }
-// https://www.youtube.com/watch?v=WBcv4V-whHk
+
                 VerticalLayout {
                     padding: 25px;
                     sw := Switch {
@@ -46,7 +46,6 @@
                 states [
                     active when active: {
                         cover_image.colorize: #ff534a;
-                        
                     }
                     inactive when !active: {
                         cover_image.colorize: #4d4d4d;
@@ -63,13 +62,14 @@
                 }
             }
 
-            Button {
+            button_autostart := Button {
                 width: root.width - 50px;
                 height: 30px;
-                text: "Add to Autostart";
+                text: root.autostart;
                 clicked => {
                     root.add_to_autostart();
                 }
+               
             }
 
             Button {
@@ -83,43 +83,78 @@
         }
 
         popup := PopupWindow {
-            x: 25px;
-            y: 25px;
-            width: root.width - 50px;
-            height: root.height - 50px;
+            close-on-click: false;
+            x: 5px;
+            y: 5px;
+            width: root.width - 10px;
+            height: root.height - 10px;
             Rectangle {
-                background: green;
+                background: #ffffff;
                 width: parent.width;
                 height: parent.height;
-                HorizontalLayout {
-                    alignment: center;
-                    VerticalLayout {
-                        spacing: 10px;
-                        Text {
-                            text: "General Terms of Service";
-                            font-size: 10pt;
-                            font-weight: 200;
-                        }
-
-                        Text {
-                            text: "Introduction";
-                            font-size: 5pt;
-                        }
-
-                        Text {
-                            text: "When you are a user of Mega Cloud (whether a free user, or on a Pro or Business plan with";
-                        }
-
+                VerticalLayout {
+                    HorizontalLayout {
+                        padding: 15px;
+                        alignment: end;
                         Button {
-                            width: 150px;
+                            text: "✕";
+                            width: 30px;
                             height: 30px;
-                            text: "WebSite";
+                            clicked => {
+                                popup.close();
+                            }
                         }
+                    }
 
-                        Button {
-                            width: 150px;
-                            height: 30px;
-                            text: "Report Issues";
+                    HorizontalLayout {
+                        alignment: center;
+                        VerticalLayout {
+                            text := VerticalLayout {
+                                alignment: center;
+                                padding: 20px;
+                                spacing: 5px;
+                                Text {
+                                    text: "General Terms of Service";
+                                    font-size: 12pt;
+                                    horizontal-alignment: center;
+                                }
+
+                                Text {
+                                    text: "Introduction";
+                                    font-size: 10pt;
+                                    horizontal-alignment: center;
+                                }
+
+                                Text {
+                                    text: "When you are a user of Mega Cloud (whether a free user, or on a Pro or Business plan with MEGA VPN and MEGA PASS bundled for free), and/or of MEGA S4, your agreement for all these services is with Mega Privacy LLC (Hungarian Cg. 13-09-239012 with its registered office at Templom utca 17, 2161 Csomàd, Hungary)";
+                                    wrap: word-wrap;
+                                    font-size: 8pt;
+                                    horizontal-alignment: center;
+                                }
+                            }
+
+                            link_buttons := VerticalLayout {
+                                padding-top: 15px;
+                                padding-bottom: 15px;
+                                spacing: 5px;
+                                HorizontalLayout {
+                                    alignment: center;
+                                    Button {
+                                        width: 150px;
+                                        height: 30px;
+                                        text: "WebSite";
+                                    }
+                                }
+
+                                HorizontalLayout {
+                                    alignment: center;
+                                    Button {
+                                        width: 150px;
+                                        height: 30px;
+                                        text: "WebSite";
+                                    }
+                                }
+                            }
                         }
                     }
                 }
