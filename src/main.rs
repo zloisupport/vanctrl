@@ -41,26 +41,51 @@ fn main() {
         app.set_active(false);
     }
 
-    app.on_add_to_autostart(|| {
-        if let Err(e) = add_to_autostart() {
-            println!("Failed to add to autostart: {}", e);
+    let autostart_status = check_to_autostart();
+    if autostart_status {
+        app.set_autostart(SharedString::from("Remove from autostart"));
+    } else {
+        app.set_autostart(SharedString::from("Add to autostart"));
+    }
+
+    app.on_add_to_autostart({
+        let weak = weak.clone();
+        move || {
+            let app = weak.upgrade().unwrap();
+            let autostart_status = check_to_autostart();
+            if !autostart_status {
+                if let Err(e) = add_to_autostart() {
+                    println!("Failed to add to autostart: {}", e);
+                } else {
+                    app.set_autostart(SharedString::from("Remove from autostart"));
+                }
+            } else {
+                if let Err(e) = remove_to_autostart() {
+                    println!("Failed to add to autostart: {}", e);
+                } else {
+                    app.set_autostart(SharedString::from("Add to autostart"));
+                }
+            }
         }
     });
 
-    app.on_save_config(move || {
-        let app = weak.upgrade().unwrap();
-        let active_status = app.get_active();
+    app.on_save_config({
+        let weak = weak.clone();
+        move || {
+            let app = weak.upgrade().unwrap();
+            let active_status = app.get_active();
 
-        if active_status {
-            run_activate(&tray);
-        } else {
-            run_deactivate();
+            if active_status {
+                run_activate(&tray);
+            } else {
+                run_deactivate();
+            }
+
+            conf.with_section(Some("Vanguard"))
+                .set("vgc_tray", &tray)
+                .set("state", active_status.to_string());
+            conf.write_to_file("conf.ini").unwrap();
         }
-
-        conf.with_section(Some("Vanguard"))
-            .set("vgc_tray", &tray)
-            .set("state", active_status.to_string());
-        conf.write_to_file("conf.ini").unwrap();
     });
 
     fn load_tray_path(section: &ini::Properties) -> String {
@@ -84,26 +109,28 @@ fn main() {
     fn add_to_autostart() -> Result<(), io::Error> {
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
 
-        let autostart_status = check_to_autostart();
-
-        if autostart_status {
-            let curver_run = hklm.open_subkey_with_flags(
-                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
-                KEY_WRITE,
-            )?;
-            curver_run.delete_value("VG Out")?;
-        } else {
-            match env::current_exe() {
-                Ok(exe_path) => {
-                    let curver_run = hklm.open_subkey_with_flags(
-                        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
-                        KEY_WRITE,
-                    )?;
-                    curver_run.set_value("VG Out", &exe_path.as_path().as_os_str())?;
-                }
-                Err(e) => println!("Failed to get current executable path: {}", e),
+        match env::current_exe() {
+            Ok(exe_path) => {
+                let curver_run = hklm.open_subkey_with_flags(
+                    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                    KEY_WRITE,
+                )?;
+                curver_run.set_value("VG Out", &exe_path.as_path().as_os_str())?;
             }
+            Err(e) => println!("Failed to get current executable path: {}", e),
         }
+
+        Ok(())
+    }
+
+    fn remove_to_autostart() -> Result<(), io::Error> {
+        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+
+        let curver_run = hklm.open_subkey_with_flags(
+            "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+            KEY_WRITE,
+        )?;
+        curver_run.delete_value("VG Out")?;
 
         Ok(())
     }
