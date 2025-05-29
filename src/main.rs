@@ -20,14 +20,14 @@ fn main() {
     let app = AppWindow::new().unwrap();
 
     let weak = app.as_weak();
-    let mut tray = String::new();
 
     let mut conf = Ini::load_from_file("conf.ini").unwrap_or_else(|_| Ini::new());
 
-    if let Some(section) = &conf.section(Some("Vanguard")) {
-        tray = load_tray_path(section);
-    }
-
+    let tray = conf
+        .section(Some("Vanguard"))
+        .map(|s| load_tray_path(s))
+        .unwrap_or_else(|| search_tray_path());
+        
     let process_activity_status = checking_process();
 
     let app = weak.upgrade().unwrap();
@@ -91,17 +91,22 @@ fn main() {
     fn load_tray_path(section: &ini::Properties) -> String {
         match section.get("vgc_tray") {
             Some(vg_tray) if !vg_tray.trim().is_empty() => vg_tray.to_string(),
-            _ => match get_tray_path() {
+            _ => search_tray_path()
+        }
+    }    
+    
+    fn search_tray_path() -> String {
+        match get_tray_path() {
                 Ok(p) => p,
                 _ => load_vg_tray_path(),
-            },
-        }
+       }
     }
+
 
     fn check_to_autostart() -> bool {
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
         match hklm.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run") {
-            Ok(subkey) => subkey.get_raw_value("VG Out").is_ok(),
+            Ok(subkey) => subkey.get_raw_value("VanCTRL").is_ok(),
             Err(_) => false,
         }
     }
@@ -115,7 +120,7 @@ fn main() {
                     "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
                     KEY_WRITE,
                 )?;
-                curver_run.set_value("VG Out", &exe_path.as_path().as_os_str())?;
+                curver_run.set_value("VanCTRL", &exe_path.as_path().as_os_str())?;
             }
             Err(e) => println!("Failed to get current executable path: {}", e),
         }
@@ -130,7 +135,7 @@ fn main() {
             "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
             KEY_WRITE,
         )?;
-        curver_run.delete_value("VG Out")?;
+        curver_run.delete_value("VanCTRL")?;
 
         Ok(())
     }
@@ -144,6 +149,7 @@ fn main() {
                     .join("Riot Vanguard")
                     .join("vgtray.exe");
                 if vanguard_path.exists() {
+                    println!("{}",vanguard_path.to_str().expect("vanguard_path.exists"));
                     return vanguard_path
                         .to_str()
                         .unwrap_or("C:\\Program Files\\Riot Vanguard\\vgtray.exe")
@@ -161,7 +167,8 @@ fn main() {
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
         let curver_run = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run")?;
         let riot_vanguard: String = curver_run.get_value("Riot Vanguard")?;
-        Ok(riot_vanguard)
+        let vanguard_tray_path = riot_vanguard.trim_matches('"').to_string();
+        Ok(vanguard_tray_path)
     }
 
     fn set_tray_path(path_to_tray: &str) -> Result<(), io::Error> {
