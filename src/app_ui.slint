@@ -8,8 +8,9 @@
     callback change_active();
     callback save_config();
     callback text_to_autostart();
+    callback bug_report();
     icon: @image-url("../assets/app_icon.png");
-    title: "VG out";
+    title: "VanCTRL";
     width: 300px;
     height: 330px;
     background: #b3e0ff;
@@ -69,7 +70,6 @@
                 clicked => {
                     root.add_to_autostart();
                 }
-               
             }
 
             Button {
@@ -114,19 +114,20 @@
                                 padding: 20px;
                                 spacing: 5px;
                                 Text {
-                                    text: "General Terms of Service";
+                                    text: "VanCTRL";
                                     font-size: 12pt;
                                     horizontal-alignment: center;
                                 }
 
                                 Text {
-                                    text: "Introduction";
+                                    text: "0.0.5.1";
                                     font-size: 10pt;
                                     horizontal-alignment: center;
-                                }
+                                }                          
+
 
                                 Text {
-                                    text: "When you are a user of Mega Cloud (whether a free user, or on a Pro or Business plan with MEGA VPN and MEGA PASS bundled for free), and/or of MEGA S4, your agreement for all these services is with Mega Privacy LLC (Hungarian Cg. 13-09-239012 with its registered office at Templom utca 17, 2161 Csomàd, Hungary)";
+                                    text: "Take back control from Riot Vanguard.Disable  kernel-level spyware with one click.Your system. Your rules.";
                                     wrap: word-wrap;
                                     font-size: 8pt;
                                     horizontal-alignment: center;
@@ -137,24 +138,28 @@
                                 padding-top: 15px;
                                 padding-bottom: 15px;
                                 spacing: 5px;
-                                HorizontalLayout {
-                                    alignment: center;
-                                    Button {
-                                        width: 150px;
-                                        height: 30px;
-                                        text: "WebSite";
-                                    }
-                                }
 
                                 HorizontalLayout {
                                     alignment: center;
                                     Button {
                                         width: 150px;
                                         height: 30px;
-                                        text: "WebSite";
+                                        text: "Bug report";
+                                        clicked => {
+                                            root.bug_report();
+                                        }
                                     }
                                 }
                             }
+
+                           VerticalLayout {
+                             Text {
+                                    text: "zloisupport";
+                                    font-size: 8pt;
+                                    color: #ff8383;
+                                    horizontal-alignment: center;
+                                }
+                           }
                         }
                     }
                 }

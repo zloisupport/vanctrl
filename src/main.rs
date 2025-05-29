@@ -44,6 +44,9 @@ fn main() {
     } else {
         app.set_autostart(SharedString::from("Add to autostart"));
     }
+    app.on_bug_report(move || {
+        launch_exe("start https://github.com/zloisupport/vanctrl/issues");
+    });
 
     app.on_add_to_autostart({
         let weak = weak.clone();
