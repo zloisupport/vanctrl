@@ -1,0 +1,15 @@
+[env]
+SLINT_INCLUDE_GENERATED = "1"
+
+[package]
+name = "clint_test"
+version = "0.1.0"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+slint = {version = "1.10.0",features = ["std", "backend-winit"] }
+rust-ini = "0.21"
+
+[build-dependencies]
+slint-build = "1.10"

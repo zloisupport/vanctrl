@@ -1,0 +1,129 @@
+﻿
+    import { Switch,Button } from "std-widgets.slint";
+
+    export component AppWindow inherits Window {
+ 
+    in-out property  <bool> active: false;
+
+    callback add_to_autostart();
+    callback change_active();
+    callback save_config();
+    icon: @image-url("../assets/app_icon.png");
+    title: "VG out";
+    width: 300px;
+    height: 330px;
+    background: #b3e0ff;
+    HorizontalLayout {
+        alignment: center;
+        visible: true;
+        VerticalLayout {
+            alignment: LayoutAlignment.center;
+            spacing: 15px;
+            HorizontalLayout {
+                spacing: 25px;
+                cover_image := Image {
+                    source: @image-url("../assets/Riot_Vanguard_Logo_Sep_2024.svg");
+                    width: 45px;
+                    height: 50px;
+                    image-fit: ImageFit.fill;
+                    image-rendering: ImageRendering.smooth;
+                }
+// https://www.youtube.com/watch?v=WBcv4V-whHk
+                VerticalLayout {
+                    padding: 25px;
+                    sw := Switch {
+                        width: 50px;
+                        checked <=> root.active;
+                        enabled: true;
+                        height: 20px;
+                        text: self.checked ? "Active" : "Inactive";
+                        toggled => {
+                            root.change_active();
+                        }
+                    }
+                }
+
+                states [
+                    active when active: {
+                        cover_image.colorize: #ff534a;
+                        
+                    }
+                    inactive when !active: {
+                        cover_image.colorize: #4d4d4d;
+                    }
+                ]
+            }
+
+            Button {
+                width: root.width - 50px;
+                height: 30px;
+                text: "Save";
+                clicked => {
+                    root.save_config();
+                }
+            }
+
+            Button {
+                width: root.width - 50px;
+                height: 30px;
+                text: "Add to Autostart";
+                clicked => {
+                    root.add_to_autostart();
+                }
+            }
+
+            Button {
+                width: root.width - 50px;
+                height: 30px;
+                text: "Infos";
+                clicked => {
+                    popup.show();
+                }
+            }
+        }
+
+        popup := PopupWindow {
+            x: 25px;
+            y: 25px;
+            width: root.width - 50px;
+            height: root.height - 50px;
+            Rectangle {
+                background: green;
+                width: parent.width;
+                height: parent.height;
+                HorizontalLayout {
+                    alignment: center;
+                    VerticalLayout {
+                        spacing: 10px;
+                        Text {
+                            text: "General Terms of Service";
+                            font-size: 10pt;
+                            font-weight: 200;
+                        }
+
+                        Text {
+                            text: "Introduction";
+                            font-size: 5pt;
+                        }
+
+                        Text {
+                            text: "When you are a user of Mega Cloud (whether a free user, or on a Pro or Business plan with";
+                        }
+
+                        Button {
+                            width: 150px;
+                            height: 30px;
+                            text: "WebSite";
+                        }
+
+                        Button {
+                            width: 150px;
+                            height: 30px;
+                            text: "Report Issues";
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
