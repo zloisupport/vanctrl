@@ -2,19 +2,16 @@
 
 use ini::Ini;
 use slint::SharedString;
-use std::env::var;
 use std::ffi::CString;
 use std::path::Path;
 use std::ptr;
 use std::{env, io};
 use winapi::um::handleapi::CloseHandle;
-use winapi::um::processthreadsapi::OpenProcess;
 use winapi::um::shellapi::ShellExecuteW;
 use winapi::um::tlhelp32::{
     CreateToolhelp32Snapshot, PROCESSENTRY32, Process32First, Process32Next, TH32CS_SNAPPROCESS,
 };
-use winapi::um::winnt::{HANDLE, PROCESS_TERMINATE};
-use winapi::um::winuser::{SW_HIDE, SW_SHOW};
+use winapi::um::winuser::SW_HIDE;
 use winreg::RegKey;
 use winreg::enums::{HKEY_LOCAL_MACHINE, KEY_WRITE};
 slint::include_modules!();
